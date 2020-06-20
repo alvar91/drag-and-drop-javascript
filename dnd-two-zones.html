@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .container {
+                display: flex;
+                padding: 30px;
+                height: 500px;
+            }
+
+            .source, .target {
+                display: flex;
+                flex-basis: 50%;
+                flex-wrap: wrap;
+                align-content: start;
+                padding: 15px;
+                border: 3px dashed #b3b3b3;
+                border-radius: 10px;
+            }
+
+            .source {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+
+            .target {
+                border-left: none;
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+
+            .item, .new-item {
+                margin: 0 10px 10px 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: hsla(0, 0%, 40%, 1);
+            }
+
+            .item, .new-item {
+                border: 2px dashed #783db3;
+                border-radius: 10px;
+                width: 50px;
+                height: 50px;
+                cursor: move;
+                user-select: none;
+            }
+
+            .new-item {
+                cursor: pointer;
+                border: 2px dashed #b3b3b3;
+                font-size: 16px;
+            }
+
+        </style>
+    </head>
+    <body class="container text-center">
+        <div class="container">
+            <div class="source">
+                <div class="new-item">+</div>
+            </div>
+
+            <div class="target">
+                <div class="new-item">+</div>
+            </div>
+        </div>
+
+        <script>
+          const source = document.querySelector('.source');
+          const target = document.querySelector('.target');
+          let counter = 0;
+
+          makeDnD([source, target]);
+
+          document.addEventListener('click', e => {
+            if (e.target.classList.contains('new-item')) {
+              const newItem = createItem();
+              const zone = e.target.parentNode;
+
+              // zone.lastElementChild - кнопка с плюсом
+              zone.insertBefore(newItem, zone.lastElementChild);
+            }
+          });
+
+          function createItem() {
+            const newDiv = document.createElement('div');
+
+            newDiv.textContent = counter++;
+            newDiv.classList.add('item');
+            newDiv.draggable = true;
+
+            return newDiv;
+          }
+
+          function makeDnD(zones) {
+            let currentDrag;
+
+            for (const zone of zones) {
+              zone.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/html', '...');
+                currentDrag = { source: zone, node: e.target };
+              });
+
+              zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+              });
+
+              zone.addEventListener('drop', (e) => {
+                if (currentDrag) {
+                  e.preventDefault();
+
+                  if (currentDrag.source !== zone) {
+                    if (e.target.classList.contains('item')) {
+                      zone.insertBefore(currentDrag.node, e.target.nextElementSibling);
+                    } else {
+                      zone.insertBefore(currentDrag.node, zone.lastElementChild);
+                    }
+                  }
+
+                  currentDrag = null;
+                }
+              });
+            }
+          }
+        </script>
+    </body>
+</html>
